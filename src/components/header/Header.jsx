@@ -3,12 +3,15 @@ import { HiOutlineSearch } from "react-icons/hi"; //for search icon
 import { SlMenu } from "react-icons/sl"; //menu icon
 import { VscChromeClose } from "react-icons/vsc"; // closing icon
 import { useNavigate, useLocation } from "react-router-dom";
-
 import "./style.scss";
-
+import { useDispatch } from "react-redux";
 import ContentWrapper from "../contentWrapper/ContentWrapper";
 import Movixx from "../../assets/Movixx.png";
+import { getHistory } from "../../store/homeSlice";
+import { SearchHistory } from "../../pages/home/searchHistory/SearchHistory";
+
 export const Header = () => {
+  const dispatch = useDispatch();
   const [show, setShow] = useState("top");
   const [lastScrollY, setLastScrollY] = useState(0);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -16,6 +19,8 @@ export const Header = () => {
   const [showSearch, setShowSearch] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const [showHistory, setShowHistory] = useState(false);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
@@ -31,6 +36,7 @@ export const Header = () => {
     }
     setLastScrollY(window.scrollY);
   };
+
   useEffect(() => {
     window.addEventListener("scroll", controlNavbar);
     return () => {
@@ -46,7 +52,10 @@ export const Header = () => {
     setShowSearch(false);
   };
   const searchQueryHandler = (event) => {
+    setShowHistory(true);
     if (event.key === "Enter" && query.length > 0) {
+      setShowHistory(false);
+      dispatch(getHistory(query));
       navigate(`/search/${query}`);
       setTimeout(() => {
         setShowSearch(false);
@@ -86,7 +95,12 @@ export const Header = () => {
         <div className="mobileMenuItems">
           <HiOutlineSearch onClick={openSearch} />
           {mobileMenu ? (
-            <VscChromeClose onClick={() => setMobileMenu(false)} />
+            <VscChromeClose
+              onClick={() => {
+                setMobileMenu(false);
+                setShowHistory(false);
+              }}
+            />
           ) : (
             <SlMenu onClick={openMobileMenu} />
           )}
@@ -102,9 +116,15 @@ export const Header = () => {
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyUp={searchQueryHandler}
               />
-              <VscChromeClose onClick={() => setShowSearch(false)} />
+              <VscChromeClose
+                onClick={() => {
+                  setShowSearch(false);
+                  setShowHistory(false);
+                }}
+              />
             </div>
           </ContentWrapper>
+          {showHistory && <SearchHistory></SearchHistory>}
         </div>
       )}
     </header>

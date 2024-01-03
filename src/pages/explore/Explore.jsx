@@ -39,7 +39,7 @@ export const Explore = () => {
   const fetchInitialData = () => {
     setLoading(true);
     fetchDataFromApi(`/discover/${mediaType}`, filters).then((res) => {
-      //filters if the params for api calling
+      //filters is the params for api calling
       setData(res);
       setPageNum((prev) => prev + 1);
       setLoading(false);
